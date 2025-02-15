@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Info Lookup</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: url('https://source.unsplash.com/1600x900/?technology') no-repeat center center/cover;
+            color: white;
+        }
+        .container {
+            margin-top: 50px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0px 0px 10px gray;
+            border-radius: 8px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>IP Info Lookup</h2>
+        <input type="text" class="form-control" id="ipInput" placeholder="Enter IP Address (or leave blank for auto-detect)">
+        <button class="btn btn-primary mt-2" onclick="getIPInfo()">Get IP Info</button>
+
+        <h3 id="ipAddress"></h3>
+        <p><strong>City:</strong> <span id="city"></span></p>
+        <p><strong>Region:</strong> <span id="region"></span></p>
+        <p><strong>Country:</strong> <span id="country"></span></p>
+        <p><strong>Latitude:</strong> <span id="lat"></span></p>
+        <p><strong>Longitude:</strong> <span id="lon"></span></p>
+        <p><strong>ISP:</strong> <span id="isp"></span></p>
+        <p><strong>Timezone:</strong> <span id="timezone"></span></p>
+        <p><strong>Organization:</strong> <span id="org"></span></p>
+
+        <div id="map"></div>
+    </div>
+
+    <script>
+        const apiKey = "debeba44d44da3";  // Replace with your ipinfo.io API Key
+
+        async function getIPInfo() {
+            let ip = document.getElementById("ipInput").value || ""; // Use input IP or auto-detect
+            const url = `https://ipinfo.io/${ip}?token=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                document.getElementById("ipAddress").textContent = `IP Address: ${data.ip}`;
+                document.getElementById("city").textContent = data.city || "N/A";
+                document.getElementById("region").textContent = data.region || "N/A";
+                document.getElementById("country").textContent = data.country || "N/A";
+                document.getElementById("lat").textContent = data.loc ? data.loc.split(",")[0] : "N/A";
+                document.getElementById("lon").textContent = data.loc ? data.loc.split(",")[1] : "N/A";
+                document.getElementById("isp").textContent = data.hostname || "N/A";
+                document.getElementById("timezone").textContent = data.timezone || "N/A";
+                document.getElementById("org").textContent = data.org || "N/A";
+
+                showMap(data.loc);
+            } catch (error) {
+                console.error("Error fetching IP info:", error);
+                alert("Unable to retrieve IP information. Try again later.");
+            }
+        }
+
+        function showMap(loc) {
+            if (loc) {
+                const [lat, lon] = loc.split(",");
+                document.getElementById("map").innerHTML = `
+                    <iframe
+                        width="100%" height="300" frameborder="0" style="border:0"
+                        src="https://www.google.com/maps?q=${lat},${lon}&output=embed"
+                        allowfullscreen>
+                    </iframe>`;
+            } else {
+                document.getElementById("map").innerHTML = "";
+            }
+        }
+
+        // Auto-fetch IP info on page load
+        document.addEventListener("DOMContentLoaded", getIPInfo);
+    </script>
+
+</body>
+</html>
